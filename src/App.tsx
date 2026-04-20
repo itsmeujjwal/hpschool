@@ -20,13 +20,15 @@ import {
   ClipboardCheck,
   Award,
   BookMarked,
-  Lightbulb
+  Lightbulb,
+  Menu,
+  X
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Course, FacultyMember, AdmissionStep } from './types';
 import { courses, faculty, admissionSteps } from './data';
 
-// Scroll to top on route change
+// --- Helper: Scroll to top on route change ---
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -35,8 +37,10 @@ const ScrollToTop = () => {
   return null;
 };
 
+// --- Component: Navbar (Updated with Mobile Menu) ---
 const Navbar = () => {
   const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -44,31 +48,98 @@ const Navbar = () => {
     return false;
   };
 
+  const menuItems = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Notice', path: '/notice' },
+    { name: 'Gallery', path: '/gallery' },
+    { name: 'Contact', path: '/contact' },
+  ];
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
   return (
-    <nav className="bg-white py-5 relative z-50">
+    <nav className="bg-white py-4 md:py-5 sticky top-0 z-[100] border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-3">
-          <img src="/pyramid.png" alt="Himalayan Pyramid Logo" className="h-24 w-auto" />
-          <span className="font-serif text-2xl font-bold text-secondary hidden sm:block">HIMALAYAN<br/><span className="text-primary">PYRAMID</span></span>
+        {/* Logo and Name */}
+        <Link to="/" className="flex items-center gap-3 relative z-[110]">
+          <img src="/pyramid.png" alt="Logo" className="h-16 md:h-20 w-auto" />
+          <span className="font-serif text-xl md:text-2xl font-bold text-secondary leading-tight">
+            HIMALAYAN<br/><span className="text-primary">PYRAMID</span>
+          </span>
         </Link>
+
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-10 font-bold text-[13px] uppercase tracking-wider">
-          <Link to="/" className={`${isActive('/') ? 'text-primary' : 'text-secondary/80 hover:text-primary'} transition-all`}>Home</Link>
-          <Link to="/about" className={`${isActive('/about') ? 'text-primary' : 'text-secondary/80 hover:text-primary'} transition-all`}>About</Link>
-          <Link to="/notice" className={`${isActive('/notice') ? 'text-primary' : 'text-secondary/80 hover:text-primary'} transition-all`}>Notice</Link>
-          <Link to="/gallery" className={`${isActive('/gallery') ? 'text-primary' : 'text-secondary/80 hover:text-primary'} transition-all`}>Gallery</Link>
-          <Link to="/contact" className={`${isActive('/contact') ? 'text-primary' : 'text-secondary/80 hover:text-primary'} transition-all`}>Contact</Link>
+          {menuItems.map((item) => (
+            <Link 
+              key={item.path} 
+              to={item.path} 
+              className={`${isActive(item.path) ? 'text-primary' : 'text-secondary/80 hover:text-primary'} transition-all`}
+            >
+              {item.name}
+            </Link>
+          ))}
           <button className="bg-primary text-white px-8 py-3 rounded text-sm font-bold hover:shadow-lg transition-all uppercase tracking-widest">
             Join Us
           </button>
         </div>
+
+        {/* Mobile Menu Toggle Button */}
+        <button 
+          className="md:hidden p-2 text-secondary relative z-[110]"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle Menu"
+        >
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-white z-[100] md:hidden pt-32 px-6"
+          >
+            <div className="flex flex-col gap-8 text-center">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`text-2xl font-serif font-bold ${isActive(item.path) ? 'text-primary' : 'text-secondary'}`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              <div className="pt-4">
+                <button className="w-full bg-primary text-white py-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-lg">
+                  Join Us Now
+                </button>
+              </div>
+              <div className="flex justify-center gap-6 pt-8 text-slate-400">
+                <Mail size={20} />
+                <Phone size={20} />
+                <MapPin size={20} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
 
+// --- Section: Hero ---
 const Hero = () => {
   return (
-    <section className="relative py-20 flex items-center justify-center bg-white border-b border-slate-100">
+    <section className="relative py-12 md:py-24 flex items-center justify-center bg-white border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -78,8 +149,8 @@ const Hero = () => {
           <span className="inline-block text-primary font-bold text-sm tracking-widest uppercase mb-4">
             Welcome to Himalayan Pyramid
           </span>
-          <h1 className="text-5xl md:text-6xl text-secondary font-serif mb-6 leading-tight font-bold">
-            Cultivating Minds, <span className="text-primary">Shaping Futures.</span>
+          <h1 className="text-4xl md:text-6xl text-secondary font-serif mb-6 leading-tight font-bold">
+            Cultivating Minds, <br className="hidden md:block"/><span className="text-primary">Shaping Futures.</span>
           </h1>
           <p className="text-slate-600 text-lg mb-10 max-w-lg leading-relaxed">
             A tradition of excellence in education. Join a community dedicated to academic rigor and character development.
@@ -111,6 +182,7 @@ const Hero = () => {
   );
 };
 
+// --- Section: About ---
 const AboutSection = () => {
   return (
     <section className="py-24 bg-white">
@@ -155,6 +227,7 @@ const AboutSection = () => {
   );
 };
 
+// --- Section: Courses ---
 const CourseSection = ({ limit }: { limit?: number }) => {
   const displayedCourses = limit ? courses.slice(0, limit) : courses;
   
@@ -168,7 +241,7 @@ const CourseSection = ({ limit }: { limit?: number }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {displayedCourses.map((course, idx) => (
+          {displayedCourses.map((course) => (
             <motion.div
               key={course.id}
               className="bg-white rounded border border-slate-100 hover:shadow-2xl transition-all duration-300"
@@ -191,6 +264,7 @@ const CourseSection = ({ limit }: { limit?: number }) => {
   );
 };
 
+// --- Section: Notices ---
 const NoticeSection = ({ limit }: { limit?: number }) => {
   const notices = [
     { date: 'Oct 15, 2026', title: 'Annual Cultural Fest "Pyramid Pulse" Scheduled', category: 'Events' },
@@ -233,6 +307,7 @@ const NoticeSection = ({ limit }: { limit?: number }) => {
   );
 };
 
+// --- Section: Faculty ---
 const FacultySection = () => {
   return (
     <section className="py-24 bg-white">
@@ -274,6 +349,7 @@ const FacultySection = () => {
   );
 };
 
+// --- Section: Gallery ---
 const GallerySection = () => {
   const images = [
     'https://scontent.fktm7-1.fna.fbcdn.net/v/t39.30808-6/671400956_1633257765053155_7286363324186189655_n.jpg?stp=c0.296.1152.1152a_dst-jpg_s206x206_tt6&_nc_cat=100&ccb=1-7&_nc_sid=5df8b4&_nc_ohc=-yKfiApNBg8Q7kNvwFSAVz5&_nc_oc=Ado-1pl9osLAtencVXAp069bIhcEF4NGjMSCh42FSVRJBHg4D3IdyV2b0u-Bw1kRk_2PBWaOze540aQSBSCeVEYd&_nc_zt=23&_nc_ht=scontent.fktm7-1.fna&_nc_gid=VXyvnd3so-Vb64FNIXaCAQ&_nc_ss=7a389&oh=00_Af1tXp9e_6QDmGermQwskLbQMPv1NqX2V6I5yrnStrUb_Q&oe=69EBBC86',
@@ -319,6 +395,7 @@ const GallerySection = () => {
   );
 };
 
+// --- Section: Admissions ---
 const AdmissionSection = () => {
   return (
     <section className="py-24 bg-primary relative overflow-hidden text-center text-white">
@@ -334,7 +411,7 @@ const AdmissionSection = () => {
   );
 };
 
-// Page Components
+// --- Page Components ---
 const HomePage = () => (
   <>
     <Hero />
@@ -434,21 +511,21 @@ const AboutPage = () => (
 );
 
 const NoticePage = () => (
-  <div className="pt-20">
+  <div className="pt-10 md:pt-20">
     <NoticeSection />
   </div>
 );
 
 const GalleryPage = () => (
-  <div className="pt-20">
+  <div className="pt-10 md:pt-20">
     <GallerySection />
   </div>
 );
 
 const ContactPage = () => (
-  <div className="py-24 bg-white">
+  <div className="py-12 md:py-24 bg-white">
     <div className="max-w-7xl mx-auto px-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20">
         <div>
           <h2 className="text-3xl text-secondary font-serif font-bold mb-6">Contact Us</h2>
           <div className="w-16 h-1 bg-primary mb-10"></div>
@@ -476,7 +553,7 @@ const ContactPage = () => (
           </div>
         </div>
         
-        <div className="bg-slate-50 p-10 rounded border border-slate-200">
+        <div className="bg-slate-50 p-6 md:p-10 rounded border border-slate-200">
           <form className="space-y-6">
             <div>
               <label className="block text-sm font-bold text-secondary mb-2 uppercase">Full Name</label>
@@ -498,6 +575,7 @@ const ContactPage = () => (
   </div>
 );
 
+// --- Footer ---
 const Footer = () => {
   return (
     <footer className="bg-slate-50 pt-20 pb-10 border-t border-slate-100">
@@ -561,6 +639,7 @@ const Footer = () => {
   );
 };
 
+// --- MAIN APP COMPONENT ---
 export default function App() {
   return (
     <Router>
@@ -583,13 +662,13 @@ export default function App() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="fixed bottom-12 right-12 z-50"
+          className="fixed bottom-6 right-6 md:bottom-12 md:right-12 z-50"
         >
           <Link 
             to="/contact" 
-            className="flex items-center gap-3 bg-primary text-white font-bold px-8 py-3 rounded shadow-xl hover:shadow-2xl transition-all group"
+            className="flex items-center gap-3 bg-primary text-white font-bold px-6 py-3 md:px-8 md:py-3 rounded shadow-xl hover:shadow-2xl transition-all group"
           >
-            <span className="uppercase tracking-[0.1em] text-sm">Join Us</span>
+            <span className="uppercase tracking-[0.1em] text-xs md:text-sm">Join Us</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
@@ -597,4 +676,3 @@ export default function App() {
     </Router>
   );
 }
-
