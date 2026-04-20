@@ -37,7 +37,7 @@ const ScrollToTop = () => {
   return null;
 };
 
-// --- Component: Navbar (Updated with Mobile Menu) ---
+// --- Component: Navbar (Updated with Mobile Menu) -----
 const Navbar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
