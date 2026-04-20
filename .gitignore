@@ -1,0 +1,79 @@
+# Ignore all files by default
+/*
+
+# But include these project files and folders
+!.gitignore
+!.env.example
+!index.html
+!metadata.json
+!package.json
+!README.md
+!tsconfig.json
+!vite.config.ts
+!/src/
+!/public/
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build & dist
+build/
+dist/
+*.tsbuildinfo
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Misc
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+.vuepress/.cache/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.versionrc.json
+
+# OS Files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
